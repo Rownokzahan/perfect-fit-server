@@ -126,6 +126,13 @@ app.delete("/carts/:userId/items/:itemId", async (req, res) => {
   res.send(result);
 });
 
+// Endpoint to clear the entire user's cart
+app.delete("/carts/:userId/clear", async (req, res) => {
+  const { userId } = req.params;
+  const result = await carts.deleteOne({ userId });
+  res.send(result);
+});
+
 // Default route
 app.get("/", (req, res) => {
   res.send("Perfect Fit server is running");
