@@ -29,6 +29,7 @@ console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 const dresses = client.db("perfectFitDB").collection("dresses");
 const carts = client.db("perfectFitDB").collection("carts");
+const orders = client.db("perfectFitDB").collection("orders");
 
 // Endpoint to get all dresses
 app.get("/dresses", async (req, res) => {
@@ -131,6 +132,32 @@ app.delete("/carts/:userId/clear", async (req, res) => {
   const { userId } = req.params;
   const result = await carts.deleteOne({ userId });
   res.send(result);
+});
+
+// Endpoint to add an order for a user
+app.post("/orders/:userId/order", async (req, res) => {
+  const { userId } = req.params;
+  const order = req.body;
+  const newOrder = { _id: new ObjectId(), ...order, created_at: new Date() };
+
+  // Check if the user already has an existing order
+  const existingOrder = await orders.findOne({ userId });
+
+  if (!existingOrder) {
+    // If the order doesn't exist, create a new order for the user
+    const result = await orders.insertOne({
+      userId,
+      orders: [newOrder],
+    });
+    res.send(result);
+  } else {
+    // If the order exists, add the new order to the existing orders
+    const result = await orders.updateOne(
+      { userId },
+      { $push: { orders: newOrder } }
+    );
+    res.send(result);
+  }
 });
 
 // Default route
