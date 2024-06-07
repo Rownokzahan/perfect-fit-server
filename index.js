@@ -28,6 +28,7 @@ client.db("admin").command({ ping: 1 });
 console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 const dresses = client.db("perfectFitDB").collection("dresses");
+const users = client.db("perfectFitDB").collection("users");
 const carts = client.db("perfectFitDB").collection("carts");
 const orders = client.db("perfectFitDB").collection("orders");
 
@@ -74,6 +75,17 @@ app.delete("/dresses/:id", async (req, res) => {
   const dressId = req.params.id;
   const result = await dresses.deleteOne({ _id: new ObjectId(dressId) });
   res.send(result);
+});
+
+// Endpoint to create a new user
+app.post("/users", async (req, res) => {
+  const newUser = req.body;
+  const alreadyExists = await users.findOne({ _id: newUser._id });
+  if (alreadyExists) {
+    return res.send(alreadyExists);
+  }
+  const result = await users.insertOne(newUser);
+  return res.send(result);
 });
 
 // Endpoint to get a user's cart
