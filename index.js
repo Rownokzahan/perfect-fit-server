@@ -146,6 +146,19 @@ app.delete("/carts/:userId/clear", async (req, res) => {
   res.send(result);
 });
 
+// Endpoint to get a user orders
+app.get("/orders/:userId/order", async (req, res) => {
+  const { userId } = req.params;
+  const result = await orders.findOne({ userId });
+  if (result) {
+    result.orders.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+  }
+
+  return res.send(result);
+});
+
 // Endpoint to add an order for a user
 app.post("/orders/:userId/order", async (req, res) => {
   const { userId } = req.params;
